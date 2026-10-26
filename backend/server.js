@@ -25,6 +25,17 @@ const app = express();
 app.use(cors()); // simple/open CORS for development; frontend will call this API
 app.use(express.json()); // parse JSON bodies (not used heavily here, but harmless/useful)
 
+// Ensure DB is connected for serverless environments (e.g. Vercel)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error("[server] Database connection error:", err.message);
+    res.status(500).json({ success: false, message: "Database connection failed." });
+  }
+});
+
 // --- Routes --------------------------------------------------------------
 app.get("/api/health", (req, res) => {
   res.status(200).json({ success: true, message: "Server is running" });
@@ -74,4 +85,8 @@ async function start() {
   });
 }
 
-start();
+if (!process.env.VERCEL) {
+  start();
+}
+
+module.exports = app;

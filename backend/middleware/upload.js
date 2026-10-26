@@ -4,14 +4,22 @@
 
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
 const crypto = require("crypto");
 const multer = require("multer");
 
-const UPLOAD_DIR = path.join(__dirname, "..", "uploads");
+// In serverless (Vercel / AWS Lambda), the filesystem is read-only except /tmp
+const UPLOAD_DIR = process.env.VERCEL
+  ? path.join(os.tmpdir(), "uploads")
+  : path.join(__dirname, "..", "uploads");
 
 // Make sure the uploads folder exists before Multer tries to write to it.
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+try {
+  if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  }
+} catch (e) {
+  console.warn("[upload] Could not ensure upload directory:", e.message);
 }
 
 const storage = multer.diskStorage({

@@ -1,7 +1,9 @@
 // Central place for every call to the NoteFlow backend.
 // Nothing outside this file should call fetch() directly.
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = (
+  import.meta.env.VITE_API_URL || "https://note-summarizer-seven.vercel.app"
+).replace(/\/+$/, "");
 
 const CONNECTION_ERROR =
   "Unable to connect to the server. Make sure the backend is running.";
